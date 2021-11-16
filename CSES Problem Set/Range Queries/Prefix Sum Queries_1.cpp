@@ -1,27 +1,36 @@
 #include <bits/stdc++.h>
 using namespace std;
 const int N = 270000;
-int n, q, a, b, newN;
-long long tree[2][N];
-
+int n, q, opt, a, b, newN;
+long long tree[2][2 * N];
+ 
 void update(int k, int u){
     k += newN - 1;
-    tree[k] = u;
+    tree[0][k] = u; tree[1][k] = max(0, u);
     for (k /= 2; k >= 1; k /= 2){
         tree[0][k] = tree[0][2 * k] + tree[0][2 * k + 1];
         tree[1][k] = max(tree[1][2 * k], tree[0][2 * k] + tree[1][2 * k + 1]);
     }
 }
-
+ 
 long long query(int a, int b){
-    long long maxVal = LLONG_MIN;
+    vector<int> left, right;
     a += newN - 1; b += newN - 1;
     while (a <= b){
-        if (a % 2 == 1){
-        }
+        if (a % 2 == 1) left.push_back(a++);
+        if (b % 2 == 0) right.push_back(b--);
+        a /= 2; b /= 2;
     }
+    reverse(right.begin(), right.end());
+    left.insert(left.end(), right.begin(), right.end());
+    long long sum = 0, maxPrefixSum = 0;
+    for (int i: left){
+        maxPrefixSum = max(maxPrefixSum, sum + tree[1][i]);
+        sum += tree[0][i];
+    }
+    return maxPrefixSum;
 }
-
+ 
 int main(){
     ios::sync_with_stdio(0);
     cin.tie(0);
